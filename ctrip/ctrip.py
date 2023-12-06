@@ -17,11 +17,11 @@ city_list = ["北海道", "青森县", "岩手县", "宫城县", "秋田县", "�
              "佐贺县", "长崎县", "熊本县", "大分县", "宫崎县", "鹿儿岛县", "冲绳县"]
 city_list.reverse()
 
-index = 1
+index = 0
 
 
 def main():
-    for city_name in city_list[0:1]:
+    for city_name in city_list:
         scrap_one_city(city_name)
 
 
@@ -53,19 +53,19 @@ def scrap_one_city(city_name):
         search_button.click()
         driver.implicitly_wait(5)
 
-        # scroll_script = "window.scrollTo(0,document.body.scrollHeight-100)"
-        # while find_next(driver) is None:
-        #     driver.execute_script(scroll_script)
-        #     time.sleep(3)
-        # print('scroll end')
-        #
-        # while not exist_end(driver):
-        #     next_button = find_next(driver)
-        #     if next_button is not None:
-        #         next_button.click()
-        #     time.sleep(2)
-        #     if next_button is None:
-        #         break
+        scroll_script = "window.scrollTo(0,document.body.scrollHeight-100)"
+        while find_next(driver) is None:
+            driver.execute_script(scroll_script)
+            time.sleep(1.5)
+        print('scroll end')
+
+        while not exist_end(driver):
+            next_button = find_next(driver)
+            if next_button is not None:
+                next_button.click()
+            time.sleep(1.5)
+            if next_button is None:
+                break
 
         parse_contents(driver, find_contents(driver))
         print(len(driver.find_elements(by=By.XPATH,
@@ -159,7 +159,7 @@ def parse_contents(driver, contents: list[WebElement]):
             print('error: ', e)
         finally:
             pass
-    time.sleep(10)
+    time.sleep(1.5)
     print(json.dumps(all_content, ensure_ascii=False))
     with open('./data/' + city_list[index] + '.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(all_content, ensure_ascii=False))
