@@ -6,9 +6,9 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-# url = "https://hotels.ctrip.com/hotels/list"
+url = "https://hotels.ctrip.com/hotels/list?checkin=2023/12/08&checkout=2023/12/09"
 
-url = "https://hotels.ctrip.com/hotels/list?countryId=78&city=228&checkin=2023/12/12&checkout=2023/12/13&optionId=228&optionType=IntlCity&directSearch=0&display=%E4%B8%9C%E4%BA%AC&crn=1&adult=1&children=0&searchBoxArg=t&travelPurpose=0&ctm_ref=ix_sb_dl&domestic=0&intl=1"
+# url = "https://hotels.ctrip.com/hotels/list?countryId=78&city=228&checkin=2023/12/12&checkout=2023/12/13&optionId=228&optionType=IntlCity&directSearch=0&display=&crn=1&adult=1&children=0&searchBoxArg=t&travelPurpose=0&ctm_ref=ix_sb_dl&domestic=0&intl=1"
 
 city_list = ["北海道", "青森县", "岩手县", "宫城县", "秋田县", "山形县", "福岛县", "茨城县", "栃木县", "群马县",
              "埼玉县", "千叶县", "东京都", "神奈川县", "新潟县", "富山县", "石川县", "福井县", "山梨县", "长野县",
@@ -29,13 +29,12 @@ def scrap_one_city(city_name):
     driver = None
     try:
         options = webdriver.ChromeOptions()
-        options.add_argument("--user-data-dir=C:\\Users\\gaowen013\\AppData\\Local\\Google\\Chrome\\User Data\\")
+        options.add_argument("--user-data-dir=C:\\Users\\gaowen013\\AppData\\Local\\Google\\Chrome\\Spider Data\\")
 
         driver = webdriver.Chrome("./drivers/chromedriver.exe", options=options)
 
         driver.get(url)
-        s = input("请登录后输入任意字符\n")
-        print("请确认已登录，登录命令是: ", s)
+        input()
 
         driver.implicitly_wait(2)
         while driver.current_url[0:20] != url[0:20]:
@@ -46,11 +45,17 @@ def scrap_one_city(city_name):
                                                      value="//div[@class='list-search-container']/ul[1]/li[1]/div[1]/div[1]/input")
         input_area.clear()
         input_area.send_keys(city_name)
+        driver.implicitly_wait(5)
+        time.sleep(1.5)
+
+        input_keyword = driver.find_element_by_id("keyword")
+        input_keyword.click()
+        input_keyword.send_keys("")
 
         search_button: WebElement = driver.find_element(by=By.XPATH,
                                                         value="//div[@class='list-search-container']/ul/li[last()]/button")
-
         search_button.click()
+        time.sleep(1.5)
         driver.implicitly_wait(5)
 
         scroll_script = "window.scrollTo(0,document.body.scrollHeight-100)"
@@ -90,7 +95,7 @@ def exist_end(driver) -> bool:
 
 def find_next(driver):
     try:
-        return driver.find_element(by=By.XPATH, value="//div[@class='list-btn-more']/div[1]")
+        return driver.find_element(by=By.XPATH, value="//div[@class='list-btn-more']/div[@class='btn-box']")
     except NoSuchElementException:
         print('end')
         return None
