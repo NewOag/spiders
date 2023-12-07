@@ -30,8 +30,18 @@ def scrap_one_city(city_name):
     try:
         options = webdriver.ChromeOptions()
         options.add_argument("--user-data-dir=C:\\Users\\gaowen013\\AppData\\Local\\Google\\Chrome\\Spider Data\\")
+        options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+        options.add_argument("window-size=1920,1080")
 
         driver = webdriver.Chrome("./drivers/chromedriver.exe", options=options)
+
+        init_script = """
+Object.defineProperty(navigator, 'webdriver', {
+    get: () => undefined
+});
+"""
+        driver.execute_script(init_script)
 
         driver.get(url)
         input()
