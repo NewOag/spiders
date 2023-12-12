@@ -24,6 +24,9 @@ def main():
     driver = init()
     for city_name in city_list:
         scrap_one_city(city_name, driver)
+    if driver is not None:
+        driver.quit()
+        print("driver quit")
 
 
 def init():
@@ -79,8 +82,19 @@ def scrap_one_city(city_name, driver):
         input_keyword.click()
         input_keyword.send_keys("")
 
-        input_area: WebElement = driver.find_element(by=By.XPATH,
-                                                     value="//div[@class='list-search-container']/ul[1]/li[1]/div[1]/div[1]/input")
+        times = 5
+        while times > 0:
+            input_area: WebElement = driver.find_element(by=By.XPATH,
+                                                         value="//div[@class='list-search-container']/ul[1]/li[1]/div[1]/div[1]/input")
+            if input_area is not None and not input_area.text.__contains__(city_name):
+                input_area.clear()
+                input_area.send_keys(city_name)
+                driver.implicitly_wait(5)
+                time.sleep(1.5)
+                times -= 1
+            elif input_area is not None:
+                break
+
         if input_area is not None and input_area.text.__contains__(city_name):
             return
 
@@ -104,14 +118,12 @@ def scrap_one_city(city_name, driver):
             if next_button is None:
                 break
 
-        parse_contents(driver, find_contents(driver))
+        parse_contents(find_contents(driver))
         print(len(driver.find_elements(by=By.XPATH,
                                        value="//div[@class='list-content']/ul/li")))
 
     finally:
-        if driver is not None:
-            driver.quit()
-            print("driver quit")
+        pass
 
 
 def exist_end(driver) -> bool:
@@ -168,12 +180,13 @@ def parse_contents(contents: list[WebElement]):
             res["tags"] = tag_list
             res["encourage"] = encourage.text
 
-            right = element.find_element_by_xpath("//div[@class='right']")
-            describe = right.find_element_by_xpath("//div[@class='describe']")
-            score = right.find_element_by_xpath("//div[@class='score']")
+            path = str.format("//div[@class='list-content']/ul/li[{}]/div/div/div/div[@class='right']", i + 5)
+            right = element.find_element_by_xpath(path)
+            describe = right.find_element_by_xpath(path + "/div/div/div[@class='describe']")
+            score = right.find_element_by_xpath(path + "/div/div/div[@class='score']")
             # price = right.find_element_by_xpath("//span[@class='priceInfo']/span[@class='real-price font-bold']")
             price = right.find_element_by_xpath(
-                "//div[@class='list-card-price']/div[@class='price-area']/p/span[@class='priceInfo']/span[@class!='tax' and @class!='line-price' and @class!='price-qi']")
+                path + "/div[@class='list-card-price']/div[@class='price-area']/p/span[@class='priceInfo']/span[@class!='tax' and @class!='line-price' and @class!='price-qi']")
 
             res["describe"] = describe.text.replace("\n", " ")
             res["score"] = score.text
