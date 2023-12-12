@@ -6,7 +6,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-url = "https://hotels.ctrip.com/hotels/list?checkin=2023/12/08&checkout=2023/12/09"
+url = "https://hotels.ctrip.com/hotels/list?checkin=2023/12/13&checkout=2023/12/14"
 
 # url = "https://hotels.ctrip.com/hotels/list?countryId=78&city=228&checkin=2023/12/12&checkout=2023/12/13&optionId=228&optionType=IntlCity&directSearch=0&display=&crn=1&adult=1&children=0&searchBoxArg=t&travelPurpose=0&ctm_ref=ix_sb_dl&domestic=0&intl=1"
 
@@ -15,6 +15,11 @@ city_list = ["北海道", "青森县", "岩手县", "宫城县", "秋田县", "�
              "岐阜县", "静冈县", "爱知县", "三重县", "滋贺县", "京都府", "大阪府", "兵库县", "奈良县", "和歌山县",
              "鸟取县", "岛根县", "冈山县", "广岛县", "山口县", "德岛县", "香川县", "爱媛县", "高知县", "福冈县",
              "佐贺县", "长崎县", "熊本县", "大分县", "宫崎县", "鹿儿岛县", "冲绳县"]
+city_list = ["北海道", "青森县", "岩手县", "宫城县", "秋田县", "山形县", "福岛县", "茨城县", "栃木县", "群马县",
+             "埼玉县", "千叶县", "东京都", "神奈川县", "新潟县", "富山县", "石川县", "福井县", "山梨县", "长野县",
+             "岐阜县", "静冈县", "爱知县", "三重县", "滋贺县", "京都府", "大阪府", "兵库县", "奈良县", "和歌山县",
+             "鸟取县", "岛根县", "冈山县", "广岛县", "山口县", "德岛县", "香川县", "爱媛县", "高知县", "福冈县",
+             "佐贺县", "长崎县", "熊本县", "大分县"]
 city_list.reverse()
 
 index = 0
@@ -60,7 +65,6 @@ Object.defineProperty(navigator, 'webdriver', {
         driver.execute_script(init_script)
 
         driver.get(url)
-        input()
 
         driver.implicitly_wait(2)
         while driver.current_url[0:20] != url[0:20]:
