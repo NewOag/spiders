@@ -15,55 +15,52 @@ city_list = ["北海道", "青森县", "岩手县", "宫城县", "秋田县", "�
              "岐阜县", "静冈县", "爱知县", "三重县", "滋贺县", "京都府", "大阪府", "兵库县", "奈良县", "和歌山县",
              "鸟取县", "岛根县", "冈山县", "广岛县", "山口县", "德岛县", "香川县", "爱媛县", "高知县", "福冈县",
              "佐贺县", "长崎县", "熊本县", "大分县", "宫崎县", "鹿儿岛县", "冲绳县"]
-city_list = ["北海道", "青森县", "岩手县", "宫城县", "秋田县", "山形县", "福岛县", "茨城县", "栃木县", "群马县",
-             "埼玉县", "千叶县", "东京都", "神奈川县", "新潟县", "富山县", "石川县", "福井县", "山梨县", "长野县",
-             "岐阜县", "静冈县", "爱知县", "三重县", "滋贺县", "京都府", "大阪府", "兵库县", "奈良县", "和歌山县",
-             "鸟取县", "岛根县", "冈山县", "广岛县", "山口县", "德岛县", "香川县", "爱媛县", "高知县", "福冈县",
-             "佐贺县", "长崎县", "熊本县", "大分县"]
 city_list.reverse()
 
 index = 0
 
 
 def main():
+    driver = init()
     for city_name in city_list:
-        scrap_one_city(city_name)
+        scrap_one_city(city_name, driver)
 
 
-def scrap_one_city(city_name):
-    driver = None
-    try:
-        options = webdriver.ChromeOptions()
-        options.add_argument("--user-data-dir=C:\\Users\\gaowen013\\AppData\\Local\\Google\\Chrome\\Spider Data\\")
-        options.add_argument(
-            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-        options.add_argument("window-size=1920,1080")
+def init():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--user-data-dir=C:\\Users\\gaowen013\\AppData\\Local\\Google\\Chrome\\Spider Data\\")
+    options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+    options.add_argument("window-size=1920,1080")
 
-        # options = webdriver.ChromeOptions()
-        prefs = {"profile.managed_default_content_settings.images": 2}
-        options.add_experimental_option("prefs", prefs)
-        # user_ag = UserAgent().chrome
-        # options.add_argument('user-agent=%s' % user_ag)
-        options.add_experimental_option('useAutomationExtension', False)  # 去掉开发者警告
-        options.add_experimental_option('excludeSwitches', ['enable-automation'])
-        options.add_argument("--disable-blink-features")
-        options.add_argument("--disable-blink-features=AutomationControlled")
+    # options = webdriver.ChromeOptions()
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
+    # user_ag = UserAgent().chrome
+    # options.add_argument('user-agent=%s' % user_ag)
+    options.add_experimental_option('useAutomationExtension', False)  # 去掉开发者警告
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    options.add_argument("--disable-blink-features")
+    options.add_argument("--disable-blink-features=AutomationControlled")
 
-        driver = webdriver.Chrome("./drivers/chromedriver.exe", options=options)
+    driver = webdriver.Chrome("./drivers/chromedriver.exe", options=options)
 
-        with open("./ctrip/stealth.min.js", 'r') as f:
-            js = f.read()
-        # 调用函数在页面加载前执行脚本
-        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {'source': js})
+    with open("./ctrip/stealth.min.js", 'r') as f:
+        js = f.read()
+    # 调用函数在页面加载前执行脚本
+    driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {'source': js})
 
-
-        init_script = """
+    init_script = """
 Object.defineProperty(navigator, 'webdriver', {
     get: () => undefined
 });
 """
-        driver.execute_script(init_script)
+    driver.execute_script(init_script)
+    return driver
 
+
+def scrap_one_city(city_name, driver):
+    try:
         driver.get(url)
 
         driver.implicitly_wait(2)
@@ -81,6 +78,11 @@ Object.defineProperty(navigator, 'webdriver', {
         input_keyword = driver.find_element_by_id("keyword")
         input_keyword.click()
         input_keyword.send_keys("")
+
+        input_area: WebElement = driver.find_element(by=By.XPATH,
+                                                     value="//div[@class='list-search-container']/ul[1]/li[1]/div[1]/div[1]/input")
+        if input_area is not None and input_area.text.__contains__(city_name):
+            return
 
         search_button: WebElement = driver.find_element(by=By.XPATH,
                                                         value="//div[@class='list-search-container']/ul/li[last()]/button")
@@ -138,7 +140,7 @@ def find_contents(driver) -> list[WebElement]:
                                 value="//div[@class='list-content']/ul/li")
 
 
-def parse_contents(driver, contents: list[WebElement]):
+def parse_contents(contents: list[WebElement]):
     global index
     all_content = []
     print(len(contents))
